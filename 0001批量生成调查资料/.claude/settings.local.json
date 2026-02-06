@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(ogrinfo:*)",
+      "Bash(python:*)",
+      "Bash(dir:*)"
+    ]
+  }
+}

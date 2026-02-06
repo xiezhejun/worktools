@@ -1,150 +1,160 @@
 # 批量生成调查表工具
 
-一个用于批量生成调查表Word文档的Python工具，可以读取Shapefile图层数据，使用Word模板自动填充占位符，为每条记录生成独立的调查表文件。
+基于 Python + CustomTkinter + GeoPandas 的批量调查表生成工具，支持从 Shapefile 读取数据并批量生成 Word 调查文档。
 
-## 功能特点
+## 功能特性
 
-- 🔹 **Shapefile读取**: 自动读取.shp文件及其属性数据
-- 🔹 **智能编码检测**: 支持GBK和UTF-8编码
-- 🔹 **占位符替换**: 自动检测并替换Word模板中的`!字段名!`占位符
-- 🔹 **批量生成**: 为每条记录生成独立的Word文档
-- 🔹 **自定义命名**: 用户可选择字段作为文件名
-- 🔹 **交互式界面**: 友好的命令行交互，操作简单
-- 🔹 **进度显示**: 实时显示生成进度和统计结果
+- 🗺️ **Shapefile数据读取**: 支持读取ESRI Shapefile格式的地理数据
+- 📄 **Word模板渲染**: 使用占位符语法批量生成Word文档
+- 🎨 **现代化GUI**: 基于CustomTkinter的直观图形界面
+- 📊 **数据预览**: 实时预览Shapefile数据
+- ⚡ **批量处理**: 快速生成数百份调查表
+- 📦 **打包分发**: 支持打包为独立可执行程序
 
-## 安装
+## 快速开始
 
-### 前置要求
+### 从源码运行
 
-- Python 3.8 或更高版本
-- pip 包管理器
+1. **安装依赖**:
+   ```bash
+   pip install -r requirements.txt
+   ```
 
-### 安装依赖
+2. **运行程序**:
+   ```bash
+   python survey_gui.py
+   ```
 
-```bash
-pip install -r requirements.txt
-```
+### 使用打包版本
 
-如果遇到geopandas安装问题，可以使用conda：
+详见 [打包指南](docs/PACKAGING.md)
 
-```bash
-conda install -c conda-forge geopandas
-pip install python-docx tqdm
-```
+## 使用说明
 
-## 使用方法
+### 步骤1: 选择Shapefile
+点击"浏览"按钮选择 `.shp` 文件，程序会自动读取字段信息。
 
-### 快速开始
+### 步骤2: 选择Word模板
+选择包含占位符的Word模板文件（`.docx`）。
 
-1. 将以下文件放在同一目录下：
-   - `survey_generator.py` - 主程序
-   - `模板.docx` - Word模板文件
-   - `数据.shp` - Shapefile数据文件（需包含.shp、.shx、.dbf文件）
+占位符格式: `{{字段名}}`
 
-2. 运行程序：
+例如:
+- `{{地块编号}}` - 将被shapefile中的"地块编号"字段替换
+- `{{权利人}}` - 将被shapefile中的"权利人"字段替换
 
-```bash
-python survey_generator.py
-```
+### 步骤3: 配置生成选项
+- **命名字段**: 选择用于生成文件名的字段
+- **输出目录**: 选择生成文档的保存位置
 
-3. 按照交互式提示操作：
-   - 选择Shapefile文件
-   - 查看字段信息
-   - 选择Word模板
-   - 查看检测到的占位符
-   - 选择文件命名字段
-   - 选择输出目录
-   - 确认并生成
+### 步骤4: 预览数据
+查看前10条数据，确认模板占位符匹配。
 
-### Word模板准备
-
-模板中使用`!字段名!`格式标记需要替换的占位符：
-
-```
-调查编号：!JCBH!
-所属市县：!ZZSXDM!
-备注信息：!BZ!
-```
-
-程序会自动将`!字段名!`替换为Shapefile中对应字段的值。
-
-### 示例
-
-假设您的Shapefile有以下字段：
-- JCBH (调查编号)
-- ZZSXDM (所属市县代码)
-- BZ (备注)
-
-您的Word模板应包含：
-```
-调查表
----------
-调查编号：!JCBH!
-市县代码：!ZZSXDM!
-备注：!BZ!
-```
-
-生成的文件将使用您选择的字段命名，例如选择`JCBH`字段，文件名为：`GCHF001.docx`
+### 步骤5: 开始生成
+点击"开始生成"按钮，等待批量处理完成。
 
 ## 项目结构
 
 ```
 批量生成调查资料/
-├── survey_generator.py      # 主程序
-├── requirements.txt          # 依赖列表
-├── README.md                 # 本文件
-├── 模板.docx                 # Word模板示例
-└── 示例shp/                  # 示例数据
-    └── 外业调查表基础数据.shp
+├── survey_gui.py          # GUI主程序
+├── survey_generator.py    # 核心逻辑模块
+├── resource_utils.py      # 资源路径管理
+├── requirements.txt       # 项目依赖
+├── survey_gui.spec        # PyInstaller配置
+├── build.bat              # Windows打包脚本
+├── build.sh               # Linux/Mac打包脚本
+├── docs/                  # 文档目录
+│   └── PACKAGING.md       # 打包指南
+├── 示例shp/               # 示例Shapefile数据
+└── output/                # 默认输出目录
 ```
 
-## 注意事项
+## 技术栈
 
-1. **Shapefile文件**: 确保.shp、.shx、.dbf三个文件在同一目录下
-2. **占位符格式**: 必须使用`!字段名!`格式，字段名区分大小写
-3. **字段名匹配**: 模板中的占位符名称必须与Shapefile字段名完全一致
-4. **文件名限制**: 生成的文件名会自动移除非法字符（`< > : " / \ | ? *`）
-5. **空值处理**: 如果字段值为空，将使用空字符串替换
-6. **中文支持**: 程序支持中文字段名和中文内容
+- **GUI**: CustomTkinter 5.2+
+- **地理数据处理**: GeoPandas 0.14+
+- **文档处理**: python-docx 1.1+
+- **数据读取**: Pandas 2.0+
+- **打包工具**: PyInstaller 6.0+
+
+## 开发
+
+### 运行测试
+
+```bash
+# 测试核心功能
+python survey_generator.py
+
+# 测试GUI
+python survey_gui.py
+```
+
+### 代码格式化
+
+```bash
+# 使用black格式化代码
+pip install black
+black survey_gui.py survey_generator.py resource_utils.py
+```
+
+## 打包
+
+详细的打包说明请参阅 [docs/PACKAGING.md](docs/PACKAGING.md)
+
+快速打包:
+
+```bash
+# Windows
+build.bat
+
+# Linux/Mac
+./build.sh
+```
 
 ## 常见问题
 
-### Q: geopandas安装失败怎么办？
+### Q: 如何创建Word模板？
 
-A: geopandas依赖GDAL库，在Windows上建议使用conda安装：
+在Word文档中使用 `{{字段名}}` 格式插入占位符，字段名需要与Shapefile中的字段完全匹配。
 
-```bash
-conda install -c conda-forge geopandas
+示例:
+```
+外业调查表
+
+地块编号: {{地块编号}}
+权利人姓名: {{权利人}}
+土地面积: {{土地面积}}
 ```
 
-### Q: 模板中的占位符没有被替换？
+### Q: 支持哪些Shapefile格式？
 
-A: 请检查：
-- 占位符格式是否为`!字段名!`
-- 字段名是否与Shapefile字段名完全一致（区分大小写）
-- 占位符是否在表格或段落中
+支持标准的ESRI Shapefile格式，必须包含以下文件:
+- `.shp` - 图形文件
+- `.shx` - 索引文件
+- `.dbf` - 属性数据文件
+- `.prj` - 坐标系文件（可选）
 
-### Q: 如何处理中文乱码？
+### Q: 程序报错"缺少依赖库"？
 
-A: 程序会自动尝试GBK和UTF-8编码。如果仍有问题，请检查Shapefile的.dbf文件编码。
-
-### Q: 生成的文件名包含非法字符？
-
-A: 程序会自动将非法字符替换为下划线`_`，确保文件名在Windows系统上可用。
-
-## 技术支持
-
-如有问题或建议，请提交Issue或Pull Request。
+运行以下命令安装依赖:
+```bash
+pip install -r requirements.txt
+```
 
 ## 许可证
 
-MIT License
+本项目由 Claude Code 创建和维护。
 
 ## 更新日志
 
-### v1.0 (2026-02-06)
-- 首次发布
-- 支持Shapefile读取
-- 支持Word模板占位符替换
-- 交互式命令行界面
-- 批量生成功能
+### v2.0 (2026-02-06)
+- ✨ 添加图形界面
+- 🔄 重构代码支持打包
+- 📦 添加 PyInstaller 配置
+- 🛠️ 添加资源路径管理模块
+- 📝 完善文档
+
+### v1.0 (初始版本)
+- 基础批量生成功能
+- 命令行界面
